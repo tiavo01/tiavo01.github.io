@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedQCM Pro - Plateforme d'Étude Médicale</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+body { font-family: 'Inter', sans-serif; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+<!-- Header -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+<div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="bg-emerald-600 text-white p-2 rounded-xl">
+<i data-lucide="brain" class="w-6 h-6"></i>
+</div>
+<span class="font-bold text-xl tracking-tight text-slate-900">
+MedQCM <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-md uppercase">Pro</span>
+</span>
+</div>
+<div id="stats-badge" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+Score: 0 / 0 (0%)
+</div>
+</div>
+</header>
+<!-- App Content -->
+<main class="max-w-4xl mx-auto w-full flex-1 p-4 md:p-6 flex flex-col gap-6">
+<!-- Module Selector -->
+<div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="module-filters">
+<!-- Dynamic Module Buttons -->
+</div>
+<!-- QCM Card -->
+<div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+<div class="flex items-center justify-between">
+<span id="qcm-category" class="text-xs font-bold uppercase tracking-wider px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
+Module
+</span>
+<span id="qcm-index" class="text-xs font-semibold text-slate-400">
+QCM 1 / 1
+</span>
+</div>
+<h2 id="qcm-question" class="text-lg md:text-xl font-bold text-slate-900 leading-snug">
+Chargement de la question...
+</h2>
+<!-- Options Container -->
+<div id="qcm-options" class="space-y-3">
+<!-- Dynamic Options -->
+</div>
+<!-- Action Controls -->
+<div class="flex items-center justify-between pt-4 border-t border-slate-100">
+<button id="btn-prev" onclick="navigateQCM(-1)" class="px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition disabled:opacity-40">
+Précédent
+</button>
+<button id="btn-submit" onclick="submitAnswer()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-md transition disabled:opacity-50">
+Valider la réponse
+</button>
+<button id="btn-next" onclick="navigateQCM(1)" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold transition disabled:opacity-40">
+Suivant
+</button>
+</div>
+</div>
+<!-- Detailed Explanation Box -->
+<div id="explanation-box" class="hidden bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+<div class="flex items-center gap-2 text-emerald-700 font-bold">
+<i data-lucide="file-text" class="w-5 h-5"></i>
+<h3>Explication & Correction</h3>
+</div>
+<p id="explanation-text" class="text-sm text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50 p-4 rounded-xl border border-slate-100">
+Explication...
+</p>
+</div>
+</main>
+<!-- Footer -->
+<footer class="text-center py-4 text-xs text-slate-400 border-t border-slate-200 bg-white">
+MedQCM Pro - Plateforme d'évaluation médicale autonome
+</footer>
+<!-- Logic Script -->
+<script>
+const QUESTIONS = [
+{
+id: 1,
+module: "Cardiologie",
+chapter: "Cycle Cardiaque",
+question: "Concernant le remplissage auriculaire et le cycle cardiaque, quelle(s) proposition(s) est/sont exacte(s) ?",
+options: [
+{ id: "A", text: "Le remplissage auriculaire s'effectue principalement pendant la systole ventriculaire." },
+{ id: "B", text: "Les valves auriculo-ventriculaires sont ouvertes durant la phase de remplissage auriculaire." },
+{ id: "C", text: "La systole auriculaire intervient à la fin de la diastole ventriculaire pour compléter le remplissage." },
+{ id: "D", text: "Le remplissage auriculaire se termine à l'ouverture des valves auriculo-ventriculaires." }
+],
+correct: ["A", "C", "D"],
+explanation: "• A, D Exactes : Les oreillettes se remplissent valves fermées pendant la systole ventriculaire. Dès la fin de la relaxation isovolumétrique, les valves s'ouvrent et mettent fin au remplissage de l'oreillette.\n• C Exacte : La systole auriculaire apporte 20-30% du remplissage ventriculaire final."
+},
+{
+id: 2,
+module: "Neurologie",
+chapter: "AVC",
+question: "Un déficit moteur du membre supérieur droit associé à une aphasie de Broca évoque une atteinte de :",
+options: [
+{ id: "A", text: "L'artère cérébrale antérieure droite." },
+{ id: "B", text: "L'artère cérébrale moyenne (sylvienne) gauche." },
+{ id: "C", text: "L'artère basilaire." },
+{ id: "D", text: "L'artère cérébrale postérieure gauche." }
+],
+correct: ["B"],
+explanation: "L'aphasie de Broca associée au déficit brachio-facial droit signe l'atteinte de l'artère cérébrale moyenne (sylvienne) gauche."
+}
+];
+let currentIndex = 0;
+let selectedOptions = [];
+let answersState = {}; // { questionId: { submitted: true, selected: [] } }
+function initApp() {
+renderModules();
+loadQCM(0);
+lucide.createIcons();
+}
+function renderModules() {
+const container = document.getElementById("module-filters");
+container.innerHTML = ⁠<button class="px-4 py-1.5 rounded-full text-xs font-bold bg-emerald-600 text-white">Tous les modules</button>⁠;
+}
+function loadQCM(index) {
+currentIndex = index;
+const q = QUESTIONS[currentIndex];
+selectedOptions = [];
+document.getElementById("qcm-category").innerText = ⁠${q.module} - ${q.chapter}⁠;
+document.getElementById("qcm-index").innerText = ⁠QCM ${currentIndex + 1} / ${QUESTIONS.length}⁠;
+document.getElementById("qcm-question").innerText = q.question;
+const optionsContainer = document.getElementById("qcm-options");
+optionsContainer.innerHTML = "";
+const isSubmitted = answersState[q.id]?.submitted;
+q.options.forEach(opt => {
+const optEl = document.createElement("div");
+optEl.className = ⁠p-4 rounded-xl border cursor-pointer transition flex items-center justify-between ${ isSubmitted  ? (q.correct.includes(opt.id) ? "bg-emerald-50 border-emerald-400 text-emerald-900 font-medium" : "bg-white border-slate-200 text-slate-600") : "bg-white border-slate-200 hover:border-emerald-300 text-slate-800" }⁠;
+optEl.onclick = () => selectOption(opt.id, optEl);
+optEl.innerHTML = ⁠<div class="flex items-center gap-3"> <span class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600 border border-slate-200">${opt.id}</span> <span class="text-sm md:text-base">${opt.text}</span> </div>⁠;
+optionsContainer.appendChild(optEl);
+});
+document.getElementById("btn-prev").disabled = currentIndex === 0;
+document.getElementById("btn-next").disabled = currentIndex === QUESTIONS.length - 1;
+const expBox = document.getElementById("explanation-box");
+if (isSubmitted) {
+expBox.classList.remove("hidden");
+document.getElementById("explanation-text").innerText = q.explanation;
+} else {
+expBox.classList.add("hidden");
+}
+}
+function selectOption(id, el) {
+const q = QUESTIONS[currentIndex];
+if (answersState[q.id]?.submitted) return;
+if (selectedOptions.includes(id)) {
+selectedOptions = selectedOptions.filter(item => item !== id);
+el.classList.remove("border-emerald-500", "bg-emerald-50/50");
+} else {
+selectedOptions.push(id);
+el.classList.add("border-emerald-500", "bg-emerald-50/50");
+}
+}
+function submitAnswer() {
+const q = QUESTIONS[currentIndex];
+if (selectedOptions.length === 0) return;
+answersState[q.id] = { submitted: true, selected: selectedOptions };
+loadQCM(currentIndex);
+updateStats();
+}
+function navigateQCM(direction) {
+const nextIdx = currentIndex + direction;
+if (nextIdx >= 0 && nextIdx < QUESTIONS.length) {
+loadQCM(nextIdx);
+}
+}
+function updateStats() {
+const totalAnswered = Object.keys(answersState).length;
+document.getElementById("stats-badge").innerText = ⁠Répondu: ${totalAnswered} / ${QUESTIONS.length}⁠;
+}
+window.onload = initApp;
+</script>
+</body>
+</html>
